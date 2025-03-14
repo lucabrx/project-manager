@@ -1,6 +1,7 @@
 package com.projectmeister.dtos;
 
-import java.time.LocalDateTime;
+
+import java.util.Date;
 
 import com.projectmeister.models.User;
 
@@ -8,7 +9,7 @@ public class UserResponse {
     final private Long id;
     final private String email;
     final private String name;
-    final private LocalDateTime createdAt;
+    final private Date createdAt;
 
     public UserResponse(User user) {
         this.id = user.getId();
@@ -29,7 +30,7 @@ public class UserResponse {
         return name;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 }

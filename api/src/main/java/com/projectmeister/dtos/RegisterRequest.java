@@ -29,7 +29,7 @@ public class RegisterRequest {
     }
 
     public User toUser() {
-        return new User(email, name, password);
+        return new User(name,email, password);
     }
 
 }

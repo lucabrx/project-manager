@@ -12,5 +12,26 @@ quarkus:
   hibernate-orm:
     database:
       generation: none
+  security:
+    jwt:
+      enabled: true
+      auth-mechanism: jwt
   http:
     port: 9000
+
+  native:
+    resources:
+      includes: publicVerificationKey.pem
+
+mp:
+  jwt:
+    verify:
+      publickey:
+        location: publicVerificationKey.pem
+        issuer: https://example.com/issuer
+
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: privateSigningKey.pem
