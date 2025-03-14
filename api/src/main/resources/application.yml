@@ -1,0 +1,16 @@
+quarkus:
+  datasource:
+    db-kind: postgresql
+    jdbc:
+      url: jdbc:postgresql://localhost:5432/db
+      driver: org.postgresql.Driver
+    username: user
+    password: password
+  flyway:
+    migrate-at-start: true
+    locations: db/migration
+  hibernate-orm:
+    database:
+      generation: none
+  http:
+    port: 9000
