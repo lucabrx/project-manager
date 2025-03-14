@@ -1,7 +1,6 @@
 package com.projectmeister.dtos;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import com.projectmeister.models.User;
 

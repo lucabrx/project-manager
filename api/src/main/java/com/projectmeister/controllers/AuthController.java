@@ -3,7 +3,7 @@ package com.projectmeister.controllers ;
 import java.util.HashMap;
 
 import com.projectmeister.dtos.RegisterRequest;
-import com.projectmeister.services.UserService;
+import com.projectmeister.services.AuthService;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -19,15 +19,15 @@ import jakarta.ws.rs.core.Response;
 @Path("/v1/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class UserController {
+public class AuthController {
     @Inject
-    UserService userService;
+    AuthService authService;
 
     @POST
     @Path("/register")
     public Response registerUser(RegisterRequest request) {
         var user = request.toUser();
-        var registeredUser = userService.registerUser(user);
+        var registeredUser = authService.registerUser(user);
         return Response.status(Response.Status.CREATED).entity(registeredUser).build();
     }
 

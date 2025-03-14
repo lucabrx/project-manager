@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped
-public class UserService {
+public class AuthService {
 
     @Inject
     UserRepository userRepository;
@@ -21,4 +21,6 @@ public class UserService {
         userRepository.persist(user);
         return new UserResponse(user);
     }
+
+
 }
