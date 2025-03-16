@@ -1,21 +1,18 @@
 package com.projectmeister.controllers ;
 
-import java.util.HashMap;
-
 import com.projectmeister.dtos.LoginRequest;
 import com.projectmeister.dtos.RegisterRequest;
 import com.projectmeister.services.AuthService;
 
-import jakarta.annotation.security.RolesAllowed;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
@@ -34,19 +31,6 @@ public class AuthController {
         return Response.created(null).entity(res).build();
     }
 
-    @GET()
-    @Path("/{id}")
-    public Response temp(@PathParam("id") int id) {
-        if (id == 1) {
-            throw new NotFoundException("User not found");
-        }
-
-        var res = new HashMap<String,String>();
-        res.put("message", "Hello World");
-
-        return Response.status(Response.Status.OK).entity(res).build();
-    }
-
     @POST
     @Path("/login")
     public Response loginUser(LoginRequest request) {
@@ -54,12 +38,23 @@ public class AuthController {
         return Response.ok(res).build();
     }
 
-    @GET
-    @Path("/me")
-    @RolesAllowed("user")
-    public Response getProfile(@Context SecurityContext ctx) {
-        String email = ctx.getUserPrincipal().getName();
-        var res = authService.getUserByEmail(email);
-        return Response.ok(res).build();
+    @POST
+    @Path("/refresh")
+    public Response refreshToken(@Context HttpHeaders headers) {
+        String refreshToken = headers.getHeaderString("Refresh-Token-X");
+        var newTokens = authService.refreshTokens(refreshToken);
+        return Response.ok(newTokens).build();
     }
+
+     @GET
+    @Path("/session")
+    @Authenticated
+    public Response getCurrentUser(@Context SecurityContext securityContext) {
+        var token = securityContext.getUserPrincipal();
+        System.out.println("Name: " + token.getName());
+        System.out.println("Email: " + token.toString());
+        var user = authService.getUser(token.getName());
+        return Response.ok(user).build();
+    }
+
 }

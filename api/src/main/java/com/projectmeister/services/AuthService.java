@@ -14,6 +14,8 @@ import com.projectmeister.repositories.UserRepository;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import io.quarkus.security.UnauthorizedException;
+import io.smallrye.jwt.auth.principal.JWTParser;
+import io.smallrye.jwt.auth.principal.ParseException;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,6 +26,9 @@ public class AuthService {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    JWTParser parser;
 
     @Transactional
     public UserResponse registerUser(RegisterRequest request) {
@@ -45,19 +50,13 @@ public class AuthService {
     }
 
      public LoginResponse authenticate(LoginRequest request) {
-        System.out.println("Email: " + request.getEmail());
         User user = userRepository.find("email", request.getEmail()).firstResult();
-        System.out.println("User: " + user);
             if (user == null) {
-            System.out.println("User not found");
             throw new UnauthorizedException("Invalid credentials");
         }
 
-        System.out.println("Stored hash: " + user.getPassword());
-        System.out.println("Entered password: " + request.getPassword());
 
         boolean verified = verifyPassword(request.getPassword(), user.getPassword());
-        System.out.println("Verification result: " + verified);
 
         if (!verified) {
             throw new UnauthorizedException("Invalid credentials");
@@ -67,8 +66,7 @@ public class AuthService {
         return new LoginResponse(userRes, token);
     }
 
-
-    public Token generateToken(User user) {
+    private Token generateToken(User user) {
         long accessTokenExpiration = 3600;
         long refreshTokenExpiration = 3600 * 24 * 7;
 
@@ -89,6 +87,39 @@ public class AuthService {
             .sign();  return new Token(accessToken, refreshToken, 3600, 3600);
 
     }
+
+    public Token refreshTokens(String token)  {
+        try{
+        var jwt = parser.parse(token);
+
+        if (!"refresh".equals(jwt.getClaim("type"))) {
+            throw new UnauthorizedException("Invalid token type");
+        }
+
+        if (jwt.getExpirationTime() < System.currentTimeMillis() / 1000) {
+            throw new UnauthorizedException("Token expired");
+        }
+
+        String email = jwt.getSubject();
+        User user = userRepository.find("email", email).firstResult();
+        if (user == null) {
+            throw new UnauthorizedException("User not found");
+        }
+
+        return generateToken(user);
+        } catch (ParseException e) {
+            throw new UnauthorizedException("Invalid token");
+        }
+    }
+
+    public UserResponse getUser(String email) {
+        User user = userRepository.find("email", email).firstResult();
+        if (user == null) {
+            throw new UnauthorizedException("User not found");
+        }
+        return new UserResponse(user);
+    }
+
 
     private String hashPassword(String password) {
         return BCrypt.withDefaults().hashToString(12, password.toCharArray());
