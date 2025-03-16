@@ -32,9 +32,9 @@ public class AuthService {
 
     @Transactional
     public UserResponse registerUser(RegisterRequest request) {
-        User user = request.toUser();
-        String rawPassword = user.getPassword();
+        String rawPassword = request.getPassword();
         String hashedPassword = hashPassword(rawPassword);
+        var user = new User(request.getName(), request.getEmail(), hashedPassword);
         user.setPassword(hashedPassword);
         userRepository.persist(user);
         return new UserResponse(user);
@@ -55,7 +55,7 @@ public class AuthService {
             throw new UnauthorizedException("Invalid credentials");
         }
 
-
+        System.out.println(user.getPassword());
         boolean verified = verifyPassword(request.getPassword(), user.getPassword());
 
         if (!verified) {
@@ -64,28 +64,6 @@ public class AuthService {
         var userRes = new UserResponse(user);
         var token = generateToken(user);
         return new LoginResponse(userRes, token);
-    }
-
-    private Token generateToken(User user) {
-        long accessTokenExpiration = 3600;
-        long refreshTokenExpiration = 3600 * 24 * 7;
-
-        String accessToken = Jwt.issuer("projectmeister")
-            .subject(user.getEmail())
-            .upn(user.getEmail())
-            .groups(Set.of(user.getRole()))
-            .claim("type", "access")
-            .expiresIn(accessTokenExpiration)
-            .sign();
-
-        String refreshToken = Jwt.issuer("projectmeister")
-            .subject(user.getEmail())
-            .upn(user.getEmail())
-            .groups(Set.of(user.getRole()))
-            .claim("type", "refresh")
-            .expiresIn(refreshTokenExpiration)
-            .sign();  return new Token(accessToken, refreshToken, 3600, 3600);
-
     }
 
     public Token refreshTokens(String token)  {
@@ -112,7 +90,7 @@ public class AuthService {
         }
     }
 
-    public UserResponse getUser(String email) {
+    public UserResponse getUserResponse(String email) {
         User user = userRepository.find("email", email).firstResult();
         if (user == null) {
             throw new UnauthorizedException("User not found");
@@ -120,6 +98,35 @@ public class AuthService {
         return new UserResponse(user);
     }
 
+    public User getUser(String email) {
+        User user = userRepository.find("email", email).firstResult();
+        if (user == null) {
+            throw new UnauthorizedException("User not found");
+        }
+        return user;
+    }
+
+    private Token generateToken(User user) {
+        long accessTokenExpiration = 3600;
+        long refreshTokenExpiration = 3600 * 24 * 7;
+
+        String accessToken = Jwt.issuer("projectmeister")
+            .subject(user.getEmail())
+            .upn(user.getEmail())
+            .groups(Set.of(user.getRole()))
+            .claim("type", "access")
+            .expiresIn(accessTokenExpiration)
+            .sign();
+
+        String refreshToken = Jwt.issuer("projectmeister")
+            .subject(user.getEmail())
+            .upn(user.getEmail())
+            .groups(Set.of(user.getRole()))
+            .claim("type", "refresh")
+            .expiresIn(refreshTokenExpiration)
+            .sign();  return new Token(accessToken, refreshToken, 3600, 3600);
+
+    }
 
     private String hashPassword(String password) {
         return BCrypt.withDefaults().hashToString(12, password.toCharArray());

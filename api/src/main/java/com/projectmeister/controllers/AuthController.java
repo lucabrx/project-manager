@@ -46,14 +46,12 @@ public class AuthController {
         return Response.ok(newTokens).build();
     }
 
-     @GET
+    @GET
     @Path("/session")
     @Authenticated
     public Response getCurrentUser(@Context SecurityContext securityContext) {
         var token = securityContext.getUserPrincipal();
-        System.out.println("Name: " + token.getName());
-        System.out.println("Email: " + token.toString());
-        var user = authService.getUser(token.getName());
+        var user = authService.getUserResponse(token.getName());
         return Response.ok(user).build();
     }
 
