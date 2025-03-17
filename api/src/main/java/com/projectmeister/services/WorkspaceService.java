@@ -28,6 +28,27 @@ public class WorkspaceService {
     @Inject
     UserRepository userRepository;
 
+    public static boolean isAdmin(WorkspaceMember member) {
+        return member.getRole().equals("owner") || member.getRole().equals("admin");
+    }
+
+    @Transactional
+    public WorkspaceMember getMember(User user, Long workspaceId) {
+        var workspace = workspaceRepository.findById(workspaceId);
+        if (workspace == null) {
+            throw new NotFoundException("Workspace not found");
+        }
+
+        var member = workspaceMemberRepository.find("workspace", workspace).list().stream()
+                .filter(m -> m.getUser().getId().equals(user.getId()) && m.getStatus().equals("active")).findFirst().orElse(null);
+
+        if (member == null) {
+            throw new NotFoundException("Workspace not found");
+        }
+
+        return member;
+    }
+
     @Transactional
     public WorkspaceMember createWorkspace(CreateWorkspaceRequest request, User user) {
         var workspace = new Workspace(request.getName(), request.getDescription(), request.getLogo(), user);
@@ -54,7 +75,6 @@ public class WorkspaceService {
         var workspaceMember = workspaceMemberRepository.find("workspace", workspace).list().stream()
                 .filter(member -> member.getUser().getId().equals(user.getId()) && member.getStatus().equals("active")).findFirst().orElse(null);
 
-
         if (workspaceMember == null) {
             throw new NotFoundException("Workspace not found");
         }
@@ -73,7 +93,7 @@ public class WorkspaceService {
         if (workspaceMember == null) {
             throw new NotFoundException("Workspace not found");
         }
-        if (!workspaceMember.getRole().equals("owner") && !workspaceMember.getRole().equals("admin")) {
+        if (!isAdmin(workspaceMember)) {
             throw new UnauthorizedException("You are not allowed to update roles");
         }
 
@@ -106,7 +126,7 @@ public class WorkspaceService {
             throw new NotFoundException("Workspace not found");
         }
 
-        if (!workspaceMember.getRole().equals("owner") && !workspaceMember.getRole().equals("admin")) {
+        if (!isAdmin(workspaceMember)) {
             throw new UnauthorizedException("You are not allowed to invite users");
         }
 
@@ -222,7 +242,7 @@ public class WorkspaceService {
             throw new NotFoundException("Workspace not found");
         }
 
-        if (!member.getRole().equals("owner") && !member.getRole().equals("admin")) {
+        if (!isAdmin(member)) {
             throw new UnauthorizedException("You are not allowed to remove members");
         }
 
