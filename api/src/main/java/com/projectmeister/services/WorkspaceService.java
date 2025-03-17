@@ -133,16 +133,6 @@ public class WorkspaceService {
             throw new NotFoundException("Workspace not found");
         }
 
-        var member = workspaceMemberRepository.find("workspace", workspace).list().stream()
-                .filter(m -> m.getUser().getId().equals(session.getId()) && m.getStatus().equals("active")).findFirst().orElse(null);
-        if (member == null) {
-            throw new NotFoundException("Workspace not found");
-        }
-
-        if (!member.getRole().equals("owner") && !member.getRole().equals("admin")) {
-            throw new UnauthorizedException("You are not allowed to respond to invites");
-        }
-
         var invite = workspaceMemberRepository.find("workspace", workspace).list().stream()
                 .filter(m -> m.getUser().getId().equals(session.getId()) && m.getStatus().equals("pending")).findFirst().orElse(null);
         if (invite == null) {
@@ -196,7 +186,10 @@ public class WorkspaceService {
             throw new UnauthorizedException("You are not allowed to delete the workspace");
         }
 
-        workspaceMemberRepository.delete("workspace", workspace);
+        var members = workspaceMemberRepository.find("workspace", workspace).list();
+        for (var m : members) {
+            workspaceMemberRepository.delete(m);
+        }
         workspaceRepository.delete(workspace);
     }
 
@@ -248,76 +241,9 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public void promoteMember(User session, Long workspaceId, Long userId) {
-        var workspace = workspaceRepository.findById(workspaceId);
-
-        if (workspace == null) {
-            throw new NotFoundException("Workspace not found");
-        }
-
-        var member = workspaceMemberRepository.find("workspace", workspace).list().stream()
-                .filter(m -> m.getUser().getId().equals(session.getId()) && m.getStatus().equals("active")).findFirst().orElse(null);
-        if (member == null) {
-            throw new NotFoundException("Workspace not found");
-        }
-
-        if (!member.getRole().equals("owner") && !member.getRole().equals("admin")) {
-            throw new UnauthorizedException("You are not allowed to promote members");
-        }
-
-        var user = userRepository.findById(userId);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
-
-        var memberToPromote = workspaceMemberRepository.find("workspace", workspace).list().stream()
-                .filter(m -> m.getUser().getId().equals(userId) && m.getStatus().equals("active")).findFirst().orElse(null);
-        if (memberToPromote == null) {
-            throw new NotFoundException("User not found");
-        }
-
-        if (memberToPromote.getRole().equals("owner")) {
-            throw new BadRequestException("User is already an owner");
-        }
-
-        memberToPromote.setRole("admin");
-        workspaceMemberRepository.persist(memberToPromote);
+    public List<Workspace> getInvites(User user) {
+        var invites = workspaceMemberRepository.find("user", user).list().stream()
+                .filter(member -> member.getStatus().equals("pending")).toList();
+        return invites.stream().map(WorkspaceMember::getWorkspace).toList();
     }
-
-    @Transactional
-    public void demoteMember(User session, Long workspaceId, Long userId) {
-        var workspace = workspaceRepository.findById(workspaceId);
-        if (workspace == null) {
-            throw new NotFoundException("Workspace not found");
-        }
-
-        var member = workspaceMemberRepository.find("workspace", workspace).list().stream()
-                .filter(m -> m.getUser().getId().equals(session.getId()) && m.getStatus().equals("active")).findFirst().orElse(null);
-        if (member == null) {
-            throw new NotFoundException("Workspace not found");
-        }
-
-        if (!member.getRole().equals("owner") && !member.getRole().equals("admin")) {
-            throw new UnauthorizedException("You are not allowed to demote members");
-        }
-
-        var user = userRepository.findById(userId);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
-
-        var memberToDemote = workspaceMemberRepository.find("workspace", workspace).list().stream()
-                .filter(m -> m.getUser().getId().equals(userId) && m.getStatus().equals("active")).findFirst().orElse(null);
-        if (memberToDemote == null) {
-            throw new NotFoundException("User not found");
-        }
-
-        if (memberToDemote.getRole().equals("owner")) {
-            throw new BadRequestException("You cannot demote the owner");
-        }
-
-        memberToDemote.setRole("member");
-        workspaceMemberRepository.persist(memberToDemote);
-    }
-
 }

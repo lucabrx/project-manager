@@ -69,6 +69,16 @@ public class WorkspaceController {
         return Response.ok().entity(res).build();
     }
 
+    @GET
+    @Path("/invite")
+    @Authenticated
+    public Response getInvites(@Context SecurityContext securityContext) {
+        var token = securityContext.getUserPrincipal();
+        var session = authService.getUser(token.getName());
+        var res = workspaceService.getInvites(session);
+        return Response.ok().entity(res).build();
+    }
+
     @POST
     @Path("/{id}/invite/{userId}")
     @Authenticated
@@ -127,25 +137,5 @@ public class WorkspaceController {
         var session = authService.getUser(token.getName());
         workspaceService.removeMember(session, workspaceId, userId);
         return Response.noContent().build();
-    }
-
-    @PATCH
-    @Path("/{id}/promote/{userId}")
-    @Authenticated
-    public Response promoteMember(@PathParam("id") Long workspaceId, @PathParam("userId") Long userId, @Context SecurityContext securityContext) {
-        var token = securityContext.getUserPrincipal();
-        var session = authService.getUser(token.getName());
-        workspaceService.promoteMember(session, workspaceId, userId);
-        return Response.ok().build();
-    }
-
-    @PATCH
-    @Path("/{id}/demote/{userId}")
-    @Authenticated
-    public Response demoteMember(@PathParam("id") Long workspaceId, @PathParam("userId") Long userId, @Context SecurityContext securityContext) {
-        var token = securityContext.getUserPrincipal();
-        var session = authService.getUser(token.getName());
-        workspaceService.demoteMember(session, workspaceId, userId);
-        return Response.ok().build();
     }
 }
