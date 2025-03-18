@@ -15,10 +15,12 @@ import com.projectmeister.repositories.TaskRepository;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 
+@ApplicationScoped
 public class TaskService {
     @Inject
     TaskRepository taskRepository;

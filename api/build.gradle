@@ -29,7 +29,7 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured'
 }
 
-group 'org.acme'
+group 'com.projectmeister'
 version '1.0.0-SNAPSHOT'
 
 java {
