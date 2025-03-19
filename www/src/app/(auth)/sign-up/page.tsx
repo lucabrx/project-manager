@@ -9,6 +9,9 @@ import { useState } from 'react';
 import * as z from 'zod';
 import { useForm } from '@tanstack/react-form';
 import { ErrorMessage } from '~/components/ui/error-message';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '~/lib/api';
+import { useRouter } from 'next/navigation';
 
 const schema = z
   .object({
@@ -21,14 +24,33 @@ const schema = z
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
+type SignUpForm = z.infer<typeof schema>;
+
+async function signUp(data: Omit<SignUpForm, 'confirmPassword'>) {
+  return await api.post('auth/register', {
+    json: data,
+  });
+}
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
+
+  const { mutate } = useMutation({
+    mutationFn: signUp,
+    onSuccess: () => router.push('/sign-in'),
+    onError: (error) => console.error(error),
+  });
 
   const { Field, reset, handleSubmit } = useForm({
     onSubmit: (data) => {
-      console.log(data);
+      const payload: Omit<SignUpForm, 'confirmPassword'> = {
+        email: data.value.email,
+        name: data.value.name,
+        password: data.value.password,
+      };
+      mutate(payload);
       reset();
     },
     defaultValues: {

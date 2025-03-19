@@ -124,7 +124,9 @@ public class AuthService {
             .groups(Set.of(user.getRole()))
             .claim("type", "refresh")
             .expiresIn(refreshTokenExpiration)
-            .sign();  return new Token(accessToken, refreshToken, 3600, 3600);
+            .sign();
+
+        return new Token(accessToken, refreshToken, accessTokenExpiration, refreshTokenExpiration);
 
     }
 
