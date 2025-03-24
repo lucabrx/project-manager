@@ -7,3 +7,39 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - '5432:5432'
+    networks:
+      - dev
+
+  nginx-uploads:
+    image: nginx:alpine
+    volumes:
+      - ./uploads:/usr/share/nginx/html
+    networks:
+      - dev
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.uploads.rule=PathPrefix(`/uploads`)'
+      - 'traefik.http.routers.uploads.entrypoints=web'
+      - 'traefik.http.middlewares.strip-uploads.stripprefix.prefixes=/uploads'
+      - 'traefik.http.routers.uploads.middlewares=strip-uploads'
+  traefik:
+    image: traefik:v2.10
+    command:
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.websecure.address=:443'
+      - '--log.level=DEBUG'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '8080:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - dev
+
+networks:
+  dev:
+    driver: bridge

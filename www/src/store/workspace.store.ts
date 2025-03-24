@@ -1,12 +1,13 @@
 import { create } from 'zustand';
+import { TWorkspaceResponse } from '~/lib/types';
 
 type WorkspaceState = {
-  workspaces: string[];
-  addWorkspace: (workspace: string) => void;
-  removeWorkspace: (workspace: string) => void;
-  setWorkspaces: (workspaces: string[]) => void;
-  selectWorkspace: (workspace: string) => void;
-  selectedWorkspace: string;
+  workspaces: TWorkspaceResponse[];
+  addWorkspace: (workspace: TWorkspaceResponse) => void;
+  removeWorkspace: (workspace: TWorkspaceResponse) => void;
+  setWorkspaces: (workspaces: TWorkspaceResponse[]) => void;
+  selectWorkspace: (workspace: TWorkspaceResponse) => void;
+  selectedWorkspace: TWorkspaceResponse | null;
 };
 
 export const useWorkspace = create<WorkspaceState>((set) => ({
@@ -19,5 +20,5 @@ export const useWorkspace = create<WorkspaceState>((set) => ({
     })),
   setWorkspaces: (workspaces) => set({ workspaces }),
   selectWorkspace: (workspace) => set({ selectedWorkspace: workspace }),
-  selectedWorkspace: '',
+  selectedWorkspace: null,
 }));

@@ -10,6 +10,7 @@ import com.projectmeister.repositories.ProjectRepository;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
@@ -20,7 +21,7 @@ public class ProjectService {
     @Inject
     WorkspaceService workspaceService;
 
-
+    @Transactional
     public void deleteProject(User session, Long workspaceId ,Long id) {
         var project = projectRepository.findById(id);
         if (project == null) {
@@ -28,17 +29,18 @@ public class ProjectService {
         }
         var member = workspaceService.getMember(session, workspaceId);
 
-        if (WorkspaceService.isAdmin(member)) {
+        if (!WorkspaceService.isAdmin(member)) {
             throw new UnauthorizedException("You are not authorized to delete this project");
         }
 
         projectRepository.delete(project);
     }
 
+    @Transactional
     public Project createProject(User session, Long workspaceId, CreateProjectRequest request) {
         var member = workspaceService.getMember(session, workspaceId);
         var workspace = workspaceService.getWorkspaceById(workspaceId, session);
-        if (WorkspaceService.isAdmin(member)) {
+        if (!WorkspaceService.isAdmin(member)) {
             throw new UnauthorizedException("You are not authorized to create a project");
         }
 
@@ -48,6 +50,7 @@ public class ProjectService {
         return project;
     }
 
+    @Transactional
     public Project getProjectById(User session, Long projectId) {
         var project = projectRepository.findById(projectId);
         if (project == null) {
@@ -62,6 +65,7 @@ public class ProjectService {
         return project;
     }
 
+    @Transactional
     public Project updateProject(User session, Long workspaceId, Long projectId, Project project) {
         var existingProject = projectRepository.findById(projectId);
         if (existingProject == null) {
@@ -69,7 +73,7 @@ public class ProjectService {
         }
 
         var member = workspaceService.getMember(session, workspaceId);
-        if (WorkspaceService.isAdmin(member)) {
+        if (!WorkspaceService.isAdmin(member)) {
             throw new UnauthorizedException("You are not authorized to update this project");
         }
 

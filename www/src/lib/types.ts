@@ -2,7 +2,7 @@ export type TUser = {
   id: number;
   email: string;
   name: string;
-  createdAt: Date;
+  createdAt: string;
 };
 
 export type TToken = {
@@ -12,7 +12,36 @@ export type TToken = {
   refreshTokenExpiration: number;
 };
 
-export type LoginResponse = {
+export type TWorkspace = {
+  id: number;
+  name: string;
+  description: string;
+  logo: string;
+  owner: TUser;
+  createdAt: string;
+};
+
+export type TLoginResponse = {
   user: TUser;
   token: TToken;
+};
+
+export type TWorkspaceResponse = {
+  id: number;
+  user: TUser;
+  workspace: TWorkspace;
+  role: string;
+  status: string;
+  joinedAt: string;
+};
+
+export type TProject = {
+  id: number;
+  owner: TUser;
+  workspace: TWorkspace;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  createdAt: string;
 };

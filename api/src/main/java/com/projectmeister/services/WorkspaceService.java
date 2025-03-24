@@ -30,6 +30,8 @@ public class WorkspaceService {
 
     public static boolean isAdmin(WorkspaceMember member) {
         return member.getRole().equals("owner") || member.getRole().equals("admin");
+
+
     }
 
     @Transactional

@@ -89,5 +89,66 @@ public class WorkspaceMember{
         this.joinedAt = joinedAt;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((user == null) ? 0 : user.hashCode());
+        result = prime * result + ((workspace == null) ? 0 : workspace.hashCode());
+        result = prime * result + ((role == null) ? 0 : role.hashCode());
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result + ((joinedAt == null) ? 0 : joinedAt.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        WorkspaceMember other = (WorkspaceMember) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (user == null) {
+            if (other.user != null)
+                return false;
+        } else if (!user.equals(other.user))
+            return false;
+        if (workspace == null) {
+            if (other.workspace != null)
+                return false;
+        } else if (!workspace.equals(other.workspace))
+            return false;
+        if (role == null) {
+            if (other.role != null)
+                return false;
+        } else if (!role.equals(other.role))
+            return false;
+        if (status == null) {
+            if (other.status != null)
+                return false;
+        } else if (!status.equals(other.status))
+            return false;
+        if (joinedAt == null) {
+            if (other.joinedAt != null)
+                return false;
+        } else if (!joinedAt.equals(other.joinedAt))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkspaceMember [id=" + id + ", user=" + user + ", workspace=" + workspace + ", role=" + role
+                + ", status=" + status + ", joinedAt=" + joinedAt + "]";
+    }
+
 
 }

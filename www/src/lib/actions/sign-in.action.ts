@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { SignInForm } from '../validators/auth.validator';
-import { LoginResponse } from '../types';
+import { TLoginResponse } from '../types';
 import { api } from '../api';
 
 export async function signIn(data: SignInForm) {
@@ -11,7 +11,7 @@ export async function signIn(data: SignInForm) {
     .post('auth/login', {
       json: data,
     })
-    .json<LoginResponse>();
+    .json<TLoginResponse>();
 
   console.log(res);
 
