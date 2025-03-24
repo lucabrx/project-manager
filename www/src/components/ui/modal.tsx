@@ -1,8 +1,9 @@
 'use client';
 
-import { MouseEvent } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '@iconify/react/dist/iconify.js';
+import { AnimatePresence, motion } from 'motion/react';
+import { MouseEvent } from 'react';
+import { cn } from '~/lib/utils';
 import { Button } from './button';
 
 interface ModalProps {
@@ -38,7 +39,10 @@ export function Modal({
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.8, y: 50, opacity: 0 }}
           transition={{ type: 'spring', damping: 15, stiffness: 200 }}
-          className="bg-card border-border w-full max-w-xl rounded-md border p-8 shadow-xl backdrop-blur-lg"
+          className={cn(
+            'bg-card border-border w-full max-w-xl rounded-md border p-8 shadow-xl backdrop-blur-lg',
+            className,
+          )}
           onClick={(e) => e.stopPropagation()}
         >
           {canClose && (

@@ -76,97 +76,90 @@ export function CreateProject() {
   });
 
   return (
-    isOpen && (
-      <Modal onClose={close} className="grid">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleSubmit();
-          }}
-        >
-          <Field
-            name="name"
-            children={(field) => (
-              <div className="mt-4 grid gap-4">
-                <Label>Name</Label>
-                <Input
-                  placeholder="Tyson's Gym"
-                  type="text"
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched &&
-                field.state.meta.isBlurred &&
-                field.state.meta.errors.length ? (
-                  <ErrorMessage
-                    message={field.state.meta.errors[0]?.message!}
-                  />
-                ) : null}
-              </div>
-            )}
-          />
-          <Field
-            name="description"
-            children={(field) => (
-              <div className="mt-4 grid gap-4">
-                <Label>Description</Label>
-                <Textarea
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Tyson's Gym description"
-                  className="h-32 resize-none"
-                ></Textarea>
-              </div>
-            )}
-          />
-
-          <div className="mt-4 grid gap-4">
-            <Label>Icon</Label>
-            <IconSelector
-              color={color}
-              onSelect={(i) => {
-                if (i === icon) {
-                  setIcon('');
-                  return;
-                }
-                setIcon(i);
-              }}
-              selectedIcon={icon}
-            />
-          </div>
-          <div className="mt-4 grid gap-4">
-            <Label>Color</Label>
-            <input
-              type="color"
-              ref={colorRef}
-              onChange={(e) => setColor(e.target.value)}
-              className="hidden"
-            />
-            <div
-              onClick={() => colorRef.current?.click()}
-              className="border-border flex h-10 w-full cursor-pointer items-center justify-center rounded-md border p-2"
-              style={{ backgroundColor: color }}
-            ></div>
-          </div>
-
-          <div className="mt-4 flex w-full items-center justify-end">
-            <Button type="submit">
-              <Icon
-                icon="solar:pen-new-square-broken"
-                className="mr-2 size-5"
+    <Modal onClose={close} className="grid">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleSubmit();
+        }}
+      >
+        <Field
+          name="name"
+          children={(field) => (
+            <div className="mt-4 grid gap-4">
+              <Label>Name</Label>
+              <Input
+                placeholder="Tyson's Gym"
+                type="text"
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
               />
-              Create
-            </Button>
-          </div>
-        </form>
-      </Modal>
-    )
+              {field.state.meta.isTouched &&
+              field.state.meta.isBlurred &&
+              field.state.meta.errors.length ? (
+                <ErrorMessage message={field.state.meta.errors[0]?.message!} />
+              ) : null}
+            </div>
+          )}
+        />
+        <Field
+          name="description"
+          children={(field) => (
+            <div className="mt-4 grid gap-4">
+              <Label>Description</Label>
+              <Textarea
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                placeholder="Tyson's Gym description"
+                className="h-32 resize-none"
+              ></Textarea>
+            </div>
+          )}
+        />
+
+        <div className="mt-4 grid gap-4">
+          <Label>Icon</Label>
+          <IconSelector
+            color={color}
+            onSelect={(i) => {
+              if (i === icon) {
+                setIcon('');
+                return;
+              }
+              setIcon(i);
+            }}
+            selectedIcon={icon}
+          />
+        </div>
+        <div className="mt-4 grid gap-4">
+          <Label>Color</Label>
+          <input
+            type="color"
+            ref={colorRef}
+            onChange={(e) => setColor(e.target.value)}
+            className="hidden"
+          />
+          <div
+            onClick={() => colorRef.current?.click()}
+            className="border-border flex h-10 w-full cursor-pointer items-center justify-center rounded-md border p-2"
+            style={{ backgroundColor: color }}
+          ></div>
+        </div>
+
+        <div className="mt-4 flex w-full items-center justify-end">
+          <Button type="submit">
+            <Icon icon="solar:pen-new-square-broken" className="mr-2 size-5" />
+            Create
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

@@ -43,6 +43,7 @@ public class TaskController {
             CreateTaskRequest request,
             @Context SecurityContext securityContext) {
 
+
         var token = securityContext.getUserPrincipal();
         var session = authService.getUser(token.getName());
         var task = taskService.createTask(session, workspaceId, projectId, request);
@@ -57,6 +58,12 @@ public class TaskController {
             @PathParam("projectId") Long projectId,
             @BeanParam Pageable pageable,
             @Context SecurityContext securityContext) {
+
+        System.out.println("workspaceId: " + workspaceId);
+        System.out.println("projectId: " + projectId);
+        System.out.println("page: " + pageable.getPage());
+        System.out.println("size: " + pageable.getSize());
+
 
         var token = securityContext.getUserPrincipal();
         var session = authService.getUser(token.getName());

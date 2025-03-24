@@ -23,12 +23,15 @@ import { useCreateProjectModal } from '~/store/create-project-modal.store';
 import { useCreateWorkspaceModal } from '~/store/create-workspace-modal.store';
 import { useWorkspace } from '~/store/workspace.store';
 
+import { Kanban } from '~/components/kanban';
+
 export default function Page() {
   const { workspaces, selectedWorkspace } = useWorkspace();
   const { open: openWorkspace } = useCreateWorkspaceModal();
   const { open: openProject } = useCreateProjectModal();
   const { data: projects, isSuccess } = useProjects();
   const searchParams = useSearchParams().get('project');
+
   const project =
     isSuccess &&
     projects?.find((project) => project.id === (searchParams && +searchParams));
@@ -117,7 +120,7 @@ export default function Page() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-1">Hello World</div>
+          <Kanban />
         )}
       </SidebarInset>
     </SidebarProvider>

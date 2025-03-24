@@ -1,7 +1,10 @@
 package com.projectmeister.services;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.hibernate.Hibernate;
 
 import com.projectmeister.dtos.CreateTaskRequest;
 import com.projectmeister.dtos.PageResponse;
@@ -36,8 +39,15 @@ public class TaskService {
     public Task createTask(User session, Long workspaceId, Long projectId, CreateTaskRequest request) {
         workspaceService.getMember(session, workspaceId);
         var project = projectService.getProjectById(session, projectId);
-        var assignee = workspaceService.getWorkspaceMembers(session, workspaceId).stream().filter(m -> m.getId().equals(request.getAssigneUserId())).findFirst().get();
-        var task = new Task(project,assignee.getUser(), request.getTitle(), request.getDescription(), request.getStatus(), request.getPriority(), request.getDueDate());
+        User assignee = null;
+        if (request.getAssigneUserId() != null) {
+            assignee = workspaceService.getWorkspaceMembers(session, workspaceId).stream()
+                .filter(m -> m.getId().equals(request.getAssigneUserId()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Assignee not found"))
+                .getUser();
+        }
+        var task = new Task(project, assignee, request.getTitle(), request.getDescription(), request.getStatus(), request.getPriority(), request.getDueDate());
 
         taskRepository.persist(task);
 
@@ -48,7 +58,7 @@ public class TaskService {
 
 
     @Transactional
-    public Task getTaskById(User session,Long workspaceId, Long taskId) {
+    public Task getTaskById(User session, Long workspaceId, Long taskId) {
         workspaceService.getMember(session, workspaceId);
         var task = taskRepository.findById(taskId);
         if (task == null) {
@@ -89,7 +99,7 @@ public class TaskService {
 
         StringBuilder queryBuilder = new StringBuilder("project.id = :projectId");
         Map<String, Object> params = new HashMap<>();
-        params.put("workspaceId", workspaceId);
+        params.put("projectId", projectId);
 
         if (pageable.getSearch() != null && !pageable.getSearch().isEmpty()) {
             queryBuilder.append(" AND (title LIKE :search OR description LIKE :search)");
@@ -107,10 +117,18 @@ public class TaskService {
             queryBuilder.toString(),
             sort,
             params
-        ).page(Page.of(pageable.getPage(), pageable.getSize()));
+        )
+        .page(Page.of(pageable.getPage(), pageable.getSize()));
+
+        List<Task> tasks = query.list();
+        tasks.forEach(task -> {
+            Hibernate.initialize(task.getProject());
+            Hibernate.initialize(task.getProject().getOwner());
+        });
+
 
         return new PageResponse<>(
-            query.list(),
+            tasks,
             pageable.getPage(),
             pageable.getSize(),
             query.count(),

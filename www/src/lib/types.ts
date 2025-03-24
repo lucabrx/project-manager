@@ -45,3 +45,33 @@ export type TProject = {
   color: string;
   createdAt: string;
 };
+
+export type TActivity = {
+  id: number;
+  user: TUser;
+  type: string;
+  content: string;
+  createdAt: string;
+};
+
+export type TTask = {
+  id: number;
+  assignee: TUser | null;
+  position: number;
+  number: number;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  dueDate: string | null;
+  createdAt: string;
+  activities: TActivity[];
+};
+
+export type TTaskResponse = {
+  content: TTask[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+};

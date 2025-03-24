@@ -5,10 +5,12 @@ import { useEffect } from 'react';
 import { useProjects } from '~/hooks/use-projects';
 import { TUser, TWorkspaceResponse } from '~/lib/types';
 import { useCreateProjectModal } from '~/store/create-project-modal.store';
+import { useTaskModal } from '~/store/create-task-modal.store';
 import { useCreateWorkspaceModal } from '~/store/create-workspace-modal.store';
 import { useSession } from '~/store/session.store';
 import { useWorkspace } from '~/store/workspace.store';
 import { CreateProject } from './modals/create-project';
+import { CreateTask } from './modals/create-task';
 import { CreateWorkspace } from './modals/create-workspace';
 
 export function SessionProvider({
@@ -24,6 +26,7 @@ export function SessionProvider({
 }) {
   const { isOpen: isOpenWorkspace } = useCreateWorkspaceModal();
   const { isOpen: isOpenProject } = useCreateProjectModal();
+  const { isOpen: isOpenTask } = useTaskModal();
   const pathname = usePathname();
   const searchQuery = useSearchParams();
   const router = useRouter();
@@ -65,6 +68,7 @@ export function SessionProvider({
 
   return (
     <>
+      {isOpenTask && <CreateTask />}
       {isOpenWorkspace && <CreateWorkspace />}
       {isOpenProject && <CreateProject />}
       {children}
